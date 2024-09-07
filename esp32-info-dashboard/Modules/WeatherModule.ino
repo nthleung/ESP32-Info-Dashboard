@@ -137,6 +137,9 @@ class WeatherModule{
       int openWeatherMapApiHttpResponseCode = http.GET();
       String openWeatherMapApiResponse = http.getString();
 
+      http.end();
+      client.stop();
+
       Serial.println("openWeatherMapApiHttpResponseCode: ");
       Serial.println(openWeatherMapApiHttpResponseCode);
       Serial.println("openWeatherMapApi Response: ");

@@ -221,6 +221,9 @@ void loop() {
   int configHttpResponseCode = http.GET();
   String configResponse = http.getString();
 
+  http.end();
+  client.stop();
+
   Serial.println("ConfigHttpResponseCode: ");
   Serial.println(configHttpResponseCode);
   Serial.println("Config Response: ");

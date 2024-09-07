@@ -40,6 +40,9 @@ class BarclaysModule{
       int ticketmasterApiHttpResponseCode = http.GET();
       String ticketmasterApiResponse = http.getString();
 
+      http.end();
+      client.stop();
+
       Serial.println("ticketmasterApiHttpResponseCode: ");
       Serial.println(ticketmasterApiHttpResponseCode);
       Serial.println("ticketmasterApi Response: ");
