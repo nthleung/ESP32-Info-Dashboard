@@ -68,7 +68,7 @@ class WeatherModule{
       //Print temperature and precipitation
       char temperature[6], precipitation[8];
 
-      snprintf(temperature, sizeof(temperature), "%.0f℃", round((float)hourlyJsonObject["temp"]));
+      snprintf(temperature, sizeof(temperature), "%d℃", (int)round((float)hourlyJsonObject["temp"]));
       tbw = u8g2_for_adafruit_gfx.getUTF8Width(temperature);
       u8g2_for_adafruit_gfx.setCursor(x + ((display.width() - DISPLAY_WIDTH_BORDER_OFFSET) / 5 - tbw) / 2, y + 115);
       u8g2_for_adafruit_gfx.print(temperature);
@@ -166,16 +166,16 @@ class WeatherModule{
 
       u8g2_for_adafruit_gfx.setCursor(125, 50);
       if (_showFahrenheit){
-        u8g2_for_adafruit_gfx.printf("%.0f℃ | %.0f℉", round((float)_openWeatherMapApiJsonObject["current"]["temp"]), round(celsius2fahrenheit((float)_openWeatherMapApiJsonObject["current"]["temp"])));
+        u8g2_for_adafruit_gfx.printf("%d℃ | %d℉", (int)round((float)_openWeatherMapApiJsonObject["current"]["temp"]), (int)round(celsius2fahrenheit((float)_openWeatherMapApiJsonObject["current"]["temp"])));
       } else {
-        u8g2_for_adafruit_gfx.printf("%.0f℃", round((float)_openWeatherMapApiJsonObject["current"]["temp"]));
+        u8g2_for_adafruit_gfx.printf("%d℃", (int)round((float)_openWeatherMapApiJsonObject["current"]["temp"]));
       }
       
       u8g2_for_adafruit_gfx.setFont(FreeSansBoldNotoSansWeatherSymbols24pt);
       u8g2_for_adafruit_gfx.setFontMode(1);
       
       u8g2_for_adafruit_gfx.setCursor(125, 90);
-      u8g2_for_adafruit_gfx.printf("Feels like %.0f℃", round((float)_openWeatherMapApiJsonObject["current"]["feels_like"]));
+      u8g2_for_adafruit_gfx.printf("Feels like %d℃", (int)round((float)_openWeatherMapApiJsonObject["current"]["feels_like"]));
       
       u8g2_for_adafruit_gfx.setCursor(125, 135);
       u8g2_for_adafruit_gfx.printf("☂%.0f%% UVI %d", + round((float)_openWeatherMapApiJsonObject["hourly"][1]["pop"] * 100), (int)_openWeatherMapApiJsonObject["current"]["uvi"]);
