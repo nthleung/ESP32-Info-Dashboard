@@ -13,7 +13,9 @@ class CountdownModule{
       yOffset = y;
       _countdownTargetTimestamp = (long)countdownJsonObject["targetDateTs"];
       _countdownEventName = countdownJsonObject["eventName"];
-      _daysRemaining = (_countdownTargetTimestamp - localTimezone.getLocalTimestamp(now())) / 60 / 60 / 24 + 1;
+      _daysRemaining = (_countdownTargetTimestamp - localTimezone.getLocalTimestamp(now())) / 60.0 / 60.0 / 24.0;
+      if (_countdownTargetTimestamp > localTimezone.getLocalTimestamp(now()))
+        _daysRemaining += 1;
     }
 
     void print(){
@@ -42,6 +44,6 @@ class CountdownModule{
       u8g2_for_adafruit_gfx.setFont(FreeSansBoldNotoSansWeatherSymbols16pt);
       u8g2_for_adafruit_gfx.setFontMode(1);
       u8g2_for_adafruit_gfx.setCursor(130, yOffset + 70);
-      u8g2_for_adafruit_gfx.printf("Target date: %d %s %d", day(_countdownTargetTimestamp), monthShortStr(month(_countdownTargetTimestamp)), year(_countdownTargetTimestamp));
+      u8g2_for_adafruit_gfx.printf("%d %s %d", day(_countdownTargetTimestamp), monthShortStr(month(_countdownTargetTimestamp)), year(_countdownTargetTimestamp));
     }
 };
