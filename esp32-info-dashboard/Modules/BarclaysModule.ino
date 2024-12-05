@@ -49,6 +49,7 @@ class BarclaysModule{
       Serial.println(ticketmasterApiResponse);
 
       if(ticketmasterApiHttpResponseCode != 200){
+        strcpy(_localTimeString, " ");  // Add empty _localTimeString to force "API Error!" message display in the center
         strcpy(_eventNameLine1, "API Error!");
         _refreshCounter = 2;
         return;
@@ -57,21 +58,32 @@ class BarclaysModule{
       JsonDocument ticketmasterApiJsonObject;
       deserializeJson(ticketmasterApiJsonObject, ticketmasterApiResponse);
 
-      int ticketmasterApiJsonObjectIndex;
-      bool hasEvent = false;
-      char eventName[63], localStartTime[15], localEndTime[15];
-      for (ticketmasterApiJsonObjectIndex = 0; ticketmasterApiJsonObjectIndex < ticketmasterApiJsonObject["_embedded"]["events"].size(); ticketmasterApiJsonObjectIndex++){
-        if (ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["start"] && ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["end"]){
-          strcpy(eventName, ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["name"]);
-          strcpy(localStartTime, ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["start"]["localTime"]);
-          strcpy(localEndTime, ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["end"]["localTime"]);
-          hasEvent = true;
-          break;
-        }
-      }
+      if (ticketmasterApiJsonObject["_embedded"]["events"].size() > 0){
+        
+        // Here we loop through the events list and look for the first entry with both start time and end time
+        // If no entry with both start and end times, we will pick the first one with start time
+        // If still nothing with a start time, we will pick the first one (without a time)
 
-      if (hasEvent){
-        snprintf(_localTimeString, sizeof(_localTimeString), "%.5s - %.5s", localStartTime, localEndTime);
+        int ticketmasterApiJsonObjectIndex = 0;
+        for (int ticketmasterApiJsonCurrentIndex = 0; ticketmasterApiJsonCurrentIndex < ticketmasterApiJsonObject["_embedded"]["events"].size(); ticketmasterApiJsonCurrentIndex++){
+          if (ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonCurrentIndex]["dates"]["start"] && ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonCurrentIndex]["dates"]["end"]){
+            ticketmasterApiJsonObjectIndex = ticketmasterApiJsonCurrentIndex;
+            break;
+          } else if (ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonCurrentIndex]["dates"]["start"]){
+            ticketmasterApiJsonObjectIndex = ticketmasterApiJsonCurrentIndex;
+          }
+        }
+
+        char eventName[63];
+        strcpy(eventName, ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["name"]);
+        
+        // If we have both start time and end time, concatenate with a dash ('-'), otherwise take only the start time
+
+        if (ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["start"] && ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["end"]){
+          snprintf(_localTimeString, sizeof(_localTimeString), "%.5s - %.5s", (const char*)ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["start"]["localTime"], (const char*)ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["end"]["localTime"]);
+        } else if (ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["start"]){
+          snprintf(_localTimeString, sizeof(_localTimeString), "%.5s", (const char*)ticketmasterApiJsonObject["_embedded"]["events"][ticketmasterApiJsonObjectIndex]["dates"]["start"]["localTime"]);
+        }
       
         char *token;
         token = strtok(eventName, " ");
@@ -96,7 +108,8 @@ class BarclaysModule{
         }
 
       } else {
-        strcat(_eventNameLine1, "No Event");
+        strcpy(_localTimeString, " ");  // Add empty _localTimeString to force "No Event" message display in the center
+        strcpy(_eventNameLine1, "No Event");
       }
     }
 
@@ -108,11 +121,23 @@ class BarclaysModule{
 
       u8g2_for_adafruit_gfx.setFont(FreeSansBoldNotoSansWeatherSymbols16pt);
       u8g2_for_adafruit_gfx.setFontMode(1);
-      u8g2_for_adafruit_gfx.setCursor(5 + epd_bitmap_barclays_width + 10, yOffset + 25);
-      u8g2_for_adafruit_gfx.print(_localTimeString);
-      u8g2_for_adafruit_gfx.setCursor(5 + epd_bitmap_barclays_width + 10, yOffset + 50);
-      u8g2_for_adafruit_gfx.print(_eventNameLine1);
-      u8g2_for_adafruit_gfx.setCursor(5 + epd_bitmap_barclays_width + 10, yOffset + 75);
-      u8g2_for_adafruit_gfx.print(_eventNameLine2);
+
+      if(strlen(_localTimeString) != 0){
+
+        // If we have a time, display in 3 lines
+        u8g2_for_adafruit_gfx.setCursor(5 + epd_bitmap_barclays_width + 10, yOffset + 25);
+        u8g2_for_adafruit_gfx.print(_localTimeString);
+        u8g2_for_adafruit_gfx.setCursor(5 + epd_bitmap_barclays_width + 10, yOffset + 50);
+        u8g2_for_adafruit_gfx.print(_eventNameLine1);
+        u8g2_for_adafruit_gfx.setCursor(5 + epd_bitmap_barclays_width + 10, yOffset + 75);
+        u8g2_for_adafruit_gfx.print(_eventNameLine2);
+      } else {
+
+        // If we don't have a time, display in 2 lines
+        u8g2_for_adafruit_gfx.setCursor(5 + epd_bitmap_barclays_width + 10, yOffset + 37);
+        u8g2_for_adafruit_gfx.print(_eventNameLine1);
+        u8g2_for_adafruit_gfx.setCursor(5 + epd_bitmap_barclays_width + 10, yOffset + 62);
+        u8g2_for_adafruit_gfx.print(_eventNameLine2);
+      }
     }
 };
