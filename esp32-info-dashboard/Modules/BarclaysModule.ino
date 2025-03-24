@@ -24,7 +24,8 @@ class BarclaysModule{
       memset(_eventNameLine2, 0, sizeof(_eventNameLine2));
 
       char startDateTime[31], endDateTime[31];
-      snprintf(startDateTime, sizeof(startDateTime), "%04d-%02d-%02dT%02d:%02d:00Z", year(localTimezone.getLocalTimestampFloorToUTC(now())), month(localTimezone.getLocalTimestampFloorToUTC(now())), day(localTimezone.getLocalTimestampFloorToUTC(now())), hour(localTimezone.getLocalTimestampFloorToUTC(now())), minute(localTimezone.getLocalTimestampFloorToUTC(now())));
+       // Set start time to 00:00:01 of the day to prevent filter out events from the previous day ending at 00:00:00
+      snprintf(startDateTime, sizeof(startDateTime), "%04d-%02d-%02dT%02d:%02d:01Z", year(localTimezone.getLocalTimestampFloorToUTC(now())), month(localTimezone.getLocalTimestampFloorToUTC(now())), day(localTimezone.getLocalTimestampFloorToUTC(now())), hour(localTimezone.getLocalTimestampFloorToUTC(now())), minute(localTimezone.getLocalTimestampFloorToUTC(now())));
       snprintf(endDateTime, sizeof(endDateTime), "%04d-%02d-%02dT%02d:%02d:00Z", year(localTimezone.getLocalTimestampFloorToUTC(now()) + 86400), month(localTimezone.getLocalTimestampFloorToUTC(now()) + 86400), day(localTimezone.getLocalTimestampFloorToUTC(now()) + 86400), hour(localTimezone.getLocalTimestampFloorToUTC(now()) + 86400), minute(localTimezone.getLocalTimestampFloorToUTC(now()) + 86400));
 
       char ticketmasterApiUrl[255];
